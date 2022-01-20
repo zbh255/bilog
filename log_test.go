@@ -39,7 +39,6 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 }
 
 func BenchmarkLogger(b *testing.B) {
-	b.StartTimer()
 	b.Run("BiLog", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := NewLogger(&TestWriter{})
@@ -48,12 +47,6 @@ func BenchmarkLogger(b *testing.B) {
 			logger.Print("hello world")
 		}
 	})
-	b.Run("TimeMarshal", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
-			_ = time.Now()
-		}
-	})
-	b.ResetTimer()
 	b.Run("StdLog", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
