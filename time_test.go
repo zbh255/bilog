@@ -12,7 +12,15 @@ func BenchmarkTimeFactory(b *testing.B) {
 			_ = time.Now()
 		}
 	})
-	b.Run("TimeFactory", func(b *testing.B) {
+	b.Run("TimeFactoryRaw", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := &TimeFactory{}
+		factory.Start()
+		for i := 0; i < b.N; i++ {
+			_ = factory.GetRaw()
+		}
+	})
+	b.Run("TimeFactoryNoRaw", func(b *testing.B) {
 		b.ReportAllocs()
 		factory := &TimeFactory{}
 		factory.Start()
@@ -29,7 +37,7 @@ func TestTimeFactory(t *testing.T) {
 	buf := make([]time.Time, 100)
 	for k := range buf {
 		time.Sleep(time.Millisecond * 10)
-		buf[k] = factory.Get()
+		buf[k] = factory.GetRaw()
 	}
 	// 测试时间的误差
 	top := buf[0].Unix()
