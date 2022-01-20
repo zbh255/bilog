@@ -6,15 +6,16 @@ bilog被设计为可以在需要性能，简单日志的场景下可以替换std
 Cpu: i7-8705G 4C/8T 的测试结果，测试用例在`log_test.go`
 
 ```shell
-goos: darwin
-goarch: amd64
-pkg: github.com/zbh255/bilog
-cpu: Intel(R) Core(TM) i7-8705G CPU @ 3.10GHz
 BenchmarkLogger
 BenchmarkLogger/BiLog
-BenchmarkLogger/BiLog-8         	11091630	        94.42 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogger/BiLog-8         	17665779	        63.98 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogger/BiLogSwitchPrefix
+BenchmarkLogger/BiLogSwitchPrefix-8         	13847743	        73.52 ns/op	       0 B/op	       0 allocs/op
 BenchmarkLogger/StdLog
-BenchmarkLogger/StdLog-8        	 3878521	       319.3 ns/op	      16 B/op	       1 allocs/op
+BenchmarkLogger/StdLog-8                    	 3909732	       303.0 ns/op	      16 B/op	       1 allocs/op
+BenchmarkLogger/StdLogSwitchPrefix
+BenchmarkLogger/StdLogSwitchPrefix-8        	 3709778	       313.6 ns/op	      16 B/op	       1 allocs/op
 PASS
+
 ```
 
