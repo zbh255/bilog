@@ -51,6 +51,7 @@ func BenchmarkLogger(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			logger.Info("hello world")
 			logger.Debug("hello world!")
+			logger.Flush()
 		}
 	})
 	b.Run("StdLog", func(b *testing.B) {
