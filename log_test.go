@@ -10,9 +10,8 @@ import (
 )
 
 func TestFeature(t *testing.T) {
-	logger := NewLogger(os.Stdout)
-	logger.SetPrefix("[Info]")
-	logger.Print("hello world")
+	logger := NewLogger(os.Stdout,PANIC)
+	logger.Info("hello world")
 }
 
 type TestWriter struct {
@@ -33,7 +32,7 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 		copy(t.buf, p)
 	}
 	if !bytes.Equal(t.buf, p) {
-		panic("write data is not equal buf")
+		panic("write data is not equal topBuf")
 	}
 	return len(p), nil
 }
@@ -41,18 +40,17 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 func BenchmarkLogger(b *testing.B) {
 	b.Run("BiLog", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{})
-		logger.SetPrefix("[Error] ")
+		logger := NewLogger(&TestWriter{},PANIC)
 		for i := 0; i < b.N; i++ {
-			logger.Print("hello world")
+			logger.Debug("hello world")
 		}
 	})
-	b.Run("BiLogSwitchPrefix", func(b *testing.B) {
+	b.Run("BiLogDoubleSwitchPrefix", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{})
+		logger := NewLogger(&TestWriter{},PANIC)
 		for i := 0; i < b.N; i++ {
-			logger.SetPrefix("[Debug]")
-			logger.Print("hello world")
+			logger.Info("hello world")
+			logger.Debug("hello world!")
 		}
 	})
 	b.Run("StdLog", func(b *testing.B) {
@@ -62,19 +60,20 @@ func BenchmarkLogger(b *testing.B) {
 			logger.Print("hello world")
 		}
 	})
-	b.Run("StdLogSwitchPrefix", func(b *testing.B) {
+	b.Run("StdLogDoubleSwitchPrefix", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
 		for i := 0; i < b.N; i++ {
-			logger.SetPrefix("[Debug]")
-			logger.Print("hello world")
+			logger.SetPrefix("[INFO] ")
+			logger.Println("hello world")
+			logger.SetPrefix("[DEBUG] ")
+			logger.Println("hello world")
 		}
 	})
 }
 
 func TestSync(t *testing.T) {
-	logger := NewLogger(&TestSyncWriter{})
-	logger.SetPrefix("[Error] ")
+	logger := NewLogger(&TestSyncWriter{},PANIC)
 	// goroutine等待的最长时间
 	var times int64
 	// 保护等待时间的互斥锁
@@ -85,7 +84,7 @@ func TestSync(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			unixSt := time.Now().UnixNano()
-			logger.Print("hello world\n")
+			logger.Info("hello world")
 			unixEnd := time.Now().UnixNano()
 			mu.Lock()
 			if unixEnd-unixSt > times {
