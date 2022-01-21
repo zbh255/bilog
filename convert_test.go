@@ -32,10 +32,10 @@ func BenchmarkConvert(b *testing.B) {
 		factory := &TimeFactory{}
 		factory.Start()
 		for i := 0; i < b.N; i++ {
-			date := factory.Get()
-			_ = fastConvertYear(date.Year)
-			_ = fastConvertMonth(date.Month)
-			_ = fastConvertDay(date.Day)
+			date := factory.GetRaw()
+			_ = fastConvertYear(date.Year())
+			_ = fastConvertMonth(int(date.Month()))
+			_ = fastConvertDay(date.Day())
 		}
 	})
 }

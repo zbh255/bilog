@@ -48,7 +48,7 @@ type SimpleLogger struct {
 }
 
 func NewLogger(write io.Writer, l level) Logger {
-	factory := &TimeFactory{}
+	factory := NewTimeFactory()
 	factory.Start()
 	return &SimpleLogger{
 		level: l,
@@ -77,12 +77,7 @@ func (l *SimpleLogger) fastConvert() {
 	l.resetTimeBuf()
 	date := l.factory.Get()
 
-	l.timeBuf = append(l.timeBuf, fastConvertYear(date.Year)...)
-	l.timeBuf = append(l.timeBuf, fastConvertMonth(date.Month)...)
-	l.timeBuf = append(l.timeBuf, fastConvertDay(date.Day)...)
-	l.timeBuf = append(l.timeBuf, fastConvertHour(date.Hour)...)
-	l.timeBuf = append(l.timeBuf, fastConvertMinute(date.Minute)...)
-	l.timeBuf = append(l.timeBuf, fastConvertSecond(date.Second)...)
+	l.timeBuf = append(l.timeBuf, date...)
 }
 
 // 重置用于保存时间的缓冲区
