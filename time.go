@@ -1,54 +1,55 @@
 package bilog
 
 import (
+	"reflect"
 	"sync"
 	"time"
+	"unsafe"
 )
 
 type TimeFactory struct {
 	rwMu sync.RWMutex
-	buf  *date
+	buf []byte
 	raw  time.Time
 }
 
-type date struct {
-	Year   int
-	Month  int
-	Day    int
-	Hour   int
-	Minute int
-	Second int
+func NewTimeFactory() *TimeFactory {
+	return &TimeFactory{
+		buf: make([]byte,0,TIME_BUF_SIZE),
+	}
+}
+
+func (t *TimeFactory) appendBuf() {
+	// reset
+	h := (*reflect.SliceHeader)(unsafe.Pointer(&t.buf))
+	h.Len = 0
+	t.buf = *(*[]byte)(unsafe.Pointer(h))
+	// append
+	t.buf = append(t.buf,fastConvertYear(t.raw.Year())...)
+	t.buf = append(t.buf,fastConvertMonth(int(t.raw.Month()))...)
+	t.buf = append(t.buf,fastConvertDay(t.raw.Day())...)
+	t.buf = append(t.buf,fastConvertHour(t.raw.Hour())...)
+	t.buf = append(t.buf,fastConvertMinute(t.raw.Minute())...)
+	t.buf = append(t.buf,fastConvertSecond(t.raw.Second())...)
 }
 
 func (t *TimeFactory) Start() {
 	if t.buf == nil {
 		t.raw = time.Now()
-		t.buf = &date{
-			Year:   t.raw.Year(),
-			Month:  int(t.raw.Month()),
-			Day:    t.raw.Day(),
-			Hour:   t.raw.Hour(),
-			Minute: t.raw.Minute(),
-			Second: t.raw.Second(),
-		}
+		t.appendBuf()
 	}
 	go func() {
 		for {
-			time.Sleep(time.Second)
+			time.Sleep(time.Millisecond * 10)
 			t.rwMu.Lock()
 			t.raw = time.Now()
-			t.buf.Year = t.raw.Year()
-			t.buf.Month = int(t.raw.Month())
-			t.buf.Day = t.raw.Day()
-			t.buf.Hour = t.raw.Hour()
-			t.buf.Minute = t.raw.Minute()
-			t.buf.Second = t.raw.Second()
+			t.appendBuf()
 			t.rwMu.Unlock()
 		}
 	}()
 }
 
-func (t *TimeFactory) Get() *date {
+func (t *TimeFactory) Get() []byte {
 	t.rwMu.RLock()
 	defer t.rwMu.RUnlock()
 	return t.buf
