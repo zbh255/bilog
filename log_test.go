@@ -74,7 +74,7 @@ func BenchmarkLogger(b *testing.B) {
 }
 
 func TestSync(t *testing.T) {
-	logger := NewLogger(&TestSyncWriter{}, PANIC)
+	logger := NewLogger(&TestWriter{}, PANIC)
 	// goroutine等待的最长时间
 	var times int64
 	// 保护等待时间的互斥锁
