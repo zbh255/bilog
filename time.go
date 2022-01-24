@@ -34,7 +34,7 @@ func (t *TimeFactory) appendBuf() {
 }
 
 func (t *TimeFactory) Start() {
-	if t.buf == nil {
+	if t.buf == nil || len(t.buf) == 0 {
 		t.raw = time.Now()
 		t.appendBuf()
 	}
