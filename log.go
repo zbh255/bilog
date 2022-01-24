@@ -97,9 +97,12 @@ func (l *SimpleLogger) writeLowBuf() {
 
 // 将lowBuf中的数据全部写入到writer中并reset
 func (l *SimpleLogger) flushLowBuf() {
-	_, err := l.write.Write(l.lowBuf)
+	n, err := l.write.Write(l.lowBuf)
 	if err != nil {
 		panic(err)
+	}
+	if n != len(l.lowBuf) {
+		panic("write byte not equal")
 	}
 	l.resetLowBuf()
 }
