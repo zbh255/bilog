@@ -43,9 +43,10 @@ func BenchmarkLogger(b *testing.B) {
 		logger := NewLogger(&TestWriter{}, PANIC)
 		for i := 0; i < b.N; i++ {
 			logger.Debug("hello world")
+			logger.Flush()
 		}
 	})
-	b.Run("BiLogDoubleSwitchPrefix", func(b *testing.B) {
+	b.Run("BiLogDouble", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := NewLogger(&TestWriter{}, PANIC)
 		for i := 0; i < b.N; i++ {
@@ -61,7 +62,7 @@ func BenchmarkLogger(b *testing.B) {
 			logger.Print("hello world")
 		}
 	})
-	b.Run("StdLogDoubleSwitchPrefix", func(b *testing.B) {
+	b.Run("StdLogDouble", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
 		for i := 0; i < b.N; i++ {
