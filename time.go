@@ -9,13 +9,13 @@ import (
 
 type TimeFactory struct {
 	rwMu sync.RWMutex
-	buf []byte
+	buf  []byte
 	raw  time.Time
 }
 
 func NewTimeFactory() *TimeFactory {
 	return &TimeFactory{
-		buf: make([]byte,0,TIME_BUF_SIZE),
+		buf: make([]byte, 0, TIME_BUF_SIZE),
 	}
 }
 
@@ -25,12 +25,12 @@ func (t *TimeFactory) appendBuf() {
 	h.Len = 0
 	t.buf = *(*[]byte)(unsafe.Pointer(h))
 	// append
-	t.buf = append(t.buf,fastConvertYear(t.raw.Year())...)
-	t.buf = append(t.buf,fastConvertMonth(int(t.raw.Month()))...)
-	t.buf = append(t.buf,fastConvertDay(t.raw.Day())...)
-	t.buf = append(t.buf,fastConvertHour(t.raw.Hour())...)
-	t.buf = append(t.buf,fastConvertMinute(t.raw.Minute())...)
-	t.buf = append(t.buf,fastConvertSecond(t.raw.Second())...)
+	t.buf = append(t.buf, fastConvertYear(t.raw.Year())...)
+	t.buf = append(t.buf, fastConvertMonth(int(t.raw.Month()))...)
+	t.buf = append(t.buf, fastConvertDay(t.raw.Day())...)
+	t.buf = append(t.buf, fastConvertHour(t.raw.Hour())...)
+	t.buf = append(t.buf, fastConvertMinute(t.raw.Minute())...)
+	t.buf = append(t.buf, fastConvertSecond(t.raw.Second())...)
 }
 
 func (t *TimeFactory) Start() {

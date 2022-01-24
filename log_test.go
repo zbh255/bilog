@@ -10,7 +10,7 @@ import (
 )
 
 func TestFeature(t *testing.T) {
-	logger := NewLogger(os.Stdout,PANIC)
+	logger := NewLogger(os.Stdout, PANIC)
 	logger.Info("hello world")
 }
 
@@ -40,14 +40,14 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 func BenchmarkLogger(b *testing.B) {
 	b.Run("BiLog", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{},PANIC)
+		logger := NewLogger(&TestWriter{}, PANIC)
 		for i := 0; i < b.N; i++ {
 			logger.Debug("hello world")
 		}
 	})
 	b.Run("BiLogDoubleSwitchPrefix", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{},PANIC)
+		logger := NewLogger(&TestWriter{}, PANIC)
 		for i := 0; i < b.N; i++ {
 			logger.Info("hello world")
 			logger.Debug("hello world!")
@@ -74,7 +74,7 @@ func BenchmarkLogger(b *testing.B) {
 }
 
 func TestSync(t *testing.T) {
-	logger := NewLogger(&TestSyncWriter{},PANIC)
+	logger := NewLogger(&TestSyncWriter{}, PANIC)
 	// goroutine等待的最长时间
 	var times int64
 	// 保护等待时间的互斥锁

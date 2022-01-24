@@ -160,21 +160,21 @@ func (l *SimpleLogger) Info(s string) {
 	if !l.checkLevel(INFO) {
 		return
 	}
-	l.Println(s,INFO)
+	l.Println(s, INFO)
 }
 
 func (l *SimpleLogger) Debug(s string) {
 	if !l.checkLevel(DEBUG) {
 		return
 	}
-	l.Println(s,DEBUG)
+	l.Println(s, DEBUG)
 }
 
 func (l *SimpleLogger) Trace(s string) {
 	if !l.checkLevel(TRACE) {
 		return
 	}
-	l.Println(s,TRACE)
+	l.Println(s, TRACE)
 }
 
 //TODO: 优雅地处理error
@@ -182,21 +182,21 @@ func (l *SimpleLogger) ErrorFromErr(e error) {
 	if !l.checkLevel(ERROR) {
 		return
 	}
-	l.Println(e.Error(),ERROR)
+	l.Println(e.Error(), ERROR)
 }
 
 func (l *SimpleLogger) ErrorFromString(s string) {
 	if !l.checkLevel(ERROR) {
 		return
 	}
-	l.Println(s,ERROR)
+	l.Println(s, ERROR)
 }
 
 func (l *SimpleLogger) PanicFromErr(e error) {
 	if !l.checkLevel(PANIC) {
 		return
 	}
-	l.Println(e.Error(),ERROR)
+	l.Println(e.Error(), ERROR)
 	panic(e)
 }
 
@@ -204,7 +204,7 @@ func (l *SimpleLogger) PanicFromString(s string) {
 	if !l.checkLevel(PANIC) {
 		return
 	}
-	l.Println(s,ERROR)
+	l.Println(s, ERROR)
 	panic(s)
 }
 
