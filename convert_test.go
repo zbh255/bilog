@@ -39,3 +39,32 @@ func BenchmarkConvert(b *testing.B) {
 		}
 	})
 }
+
+// 测试转换的正确性
+func TestFastConvert(t *testing.T) {
+	createTimeSequence()
+}
+
+func createTimeSequence() []string {
+	sequence := make([]string, 0, 60*60*24*31*12)
+	for year := 1970; year <= 1970; year++ {
+		for month := 1; month <= 12; month++ {
+			for day := 1; day <= 31; day++ {
+				for hour := 0; hour < 24; hour++ {
+					for minute := 0; minute < 60; minute++ {
+						for second := 0; second < 60; second++ {
+							str := fastConvertYear(year) +
+								fastConvertMonth(month) +
+								fastConvertDay(day) +
+								fastConvertHour(hour) +
+								fastConvertMinute(minute)
+							fastConvertSecond(second)
+							sequence = append(sequence, str)
+						}
+					}
+				}
+			}
+		}
+	}
+	return sequence
+}
