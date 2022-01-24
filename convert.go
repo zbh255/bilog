@@ -14,7 +14,7 @@ var yearBuf = func() []string {
 }()
 
 var monthBuf = func() []string {
-	strs := make([]string, 11)
+	strs := make([]string, 12)
 	for k := range strs {
 		strs[k] = strconv.Itoa(1+k) + "-"
 		if 1+k < 10 {
@@ -38,8 +38,8 @@ var dayBuf = func() []string {
 var hourBuf = func() []string {
 	strs := make([]string, 24)
 	for k := range strs {
-		strs[k] = strconv.Itoa(1+k) + ":"
-		if 1+k < 10 {
+		strs[k] = strconv.Itoa(k) + ":"
+		if k < 10 {
 			strs[k] = "0" + strs[k]
 		}
 	}
@@ -82,8 +82,9 @@ func fastConvertDay(i int) string {
 	return dayBuf[i-1]
 }
 
+// 小时有00，寻址时不需要-1
 func fastConvertHour(i int) string {
-	return hourBuf[i-1]
+	return hourBuf[i]
 }
 
 // 分钟有00，寻址时不需要-1
