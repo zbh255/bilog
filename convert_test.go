@@ -26,16 +26,25 @@ func BenchmarkConvert(b *testing.B) {
 			_ = fastConvertDay(dd)
 		}
 	})
-	b.Run("FastConvertAndFactory", func(b *testing.B) {
-		b.ResetTimer()
+}
+
+func BenchmarkConvertAll(b *testing.B) {
+	b.Run("Array", func(b *testing.B) {
 		b.ReportAllocs()
-		factory := &TimeFactory{}
-		factory.Start()
+		now := time.Now()
+		year, month, day := now.Date()
+		hour, minute, second := now.Hour(), now.Minute(), now.Second()
 		for i := 0; i < b.N; i++ {
-			date := factory.GetRaw()
-			_ = fastConvertYear(date.Year())
-			_ = fastConvertMonth(int(date.Month()))
-			_ = fastConvertDay(date.Day())
+			_,_ = fastConvertAllToArray(year, int(month), day, hour, minute, second)
+		}
+	})
+	b.Run("Slice", func(b *testing.B) {
+		b.ReportAllocs()
+		now := time.Now()
+		year, month, day := now.Date()
+		hour, minute, second := now.Hour(), now.Minute(), now.Second()
+		for i := 0; i < b.N; i++ {
+			_ = fastConvertAllToSlice(year, int(month), day, hour, minute, second)
 		}
 	})
 }
