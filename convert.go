@@ -1,6 +1,10 @@
 package bilog
 
-import "strconv"
+import (
+	"reflect"
+	"strconv"
+	"unsafe"
+)
 
 // 快速格式化年月日
 // year之外的数字如果小于10则会使用零填充prefix
@@ -95,4 +99,32 @@ func fastConvertMinute(i int) string {
 // 秒钟有00，寻址时不需要-1
 func fastConvertSecond(i int) string {
 	return secondBuf[i]
+}
+
+// 返回存储时间的字节数组和写入数据的有效数量
+func fastConvertAllToArray(year, month, day, hour, minute, second int) (tmp [32]byte, eff int) {
+	data := (uintptr)(unsafe.Pointer(&tmp))
+	slice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: data,
+		Len:  0,
+		Cap:  len(tmp),
+	}))
+	slice = append(slice, fastConvertYear(year)...)
+	slice = append(slice, fastConvertMonth(month)...)
+	slice = append(slice, fastConvertDay(day)...)
+	slice = append(slice, fastConvertHour(hour)...)
+	slice = append(slice, fastConvertMinute(minute)...)
+	slice = append(slice, fastConvertSecond(second)...)
+	return tmp, len(slice)
+}
+
+func fastConvertAllToSlice(year, month, day, hour, minute, second int) []byte {
+	tmp := make([]byte, 0, 32)
+	tmp = append(tmp, fastConvertYear(year)...)
+	tmp = append(tmp, fastConvertMonth(month)...)
+	tmp = append(tmp, fastConvertDay(day)...)
+	tmp = append(tmp, fastConvertHour(hour)...)
+	tmp = append(tmp, fastConvertMinute(minute)...)
+	tmp = append(tmp, fastConvertSecond(second)...)
+	return tmp
 }
