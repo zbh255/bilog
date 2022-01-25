@@ -1,62 +1,66 @@
 package bilog
 
 import (
-	"reflect"
-	"sync"
+	"sync/atomic"
 	"time"
-	"unsafe"
+)
+
+const (
+	_READER int32 = 0x2
+	_WRITER int32 = 0x4
 )
 
 type TimeFactory struct {
-	rwMu sync.RWMutex
-	buf  []byte
-	raw  time.Time
+	eff int
+	buf atomic.Value
+	raw time.Time
 }
 
 func NewTimeFactory() *TimeFactory {
-	return &TimeFactory{
-		buf: make([]byte, 0, TIME_BUF_SIZE),
-	}
+	return &TimeFactory{}
 }
 
+//func (t *TimeFactory) appendBuf() {
+//	// reset
+//	h := (*reflect.SliceHeader)(unsafe.Pointer(&t.buf))
+//	h.Len = 0
+//	t.buf = *(*[]byte)(unsafe.Pointer(h))
+//	// append
+//	t.buf = append(t.buf, fastConvertYear(t.raw.Year())...)
+//	t.buf = append(t.buf, fastConvertMonth(int(t.raw.Month()))...)
+//	t.buf = append(t.buf, fastConvertDay(t.raw.Day())...)
+//	t.buf = append(t.buf, fastConvertHour(t.raw.Hour())...)
+//	t.buf = append(t.buf, fastConvertMinute(t.raw.Minute())...)
+//	t.buf = append(t.buf, fastConvertSecond(t.raw.Second())...)
+//}
+
 func (t *TimeFactory) appendBuf() {
-	// reset
-	h := (*reflect.SliceHeader)(unsafe.Pointer(&t.buf))
-	h.Len = 0
-	t.buf = *(*[]byte)(unsafe.Pointer(h))
-	// append
-	t.buf = append(t.buf, fastConvertYear(t.raw.Year())...)
-	t.buf = append(t.buf, fastConvertMonth(int(t.raw.Month()))...)
-	t.buf = append(t.buf, fastConvertDay(t.raw.Day())...)
-	t.buf = append(t.buf, fastConvertHour(t.raw.Hour())...)
-	t.buf = append(t.buf, fastConvertMinute(t.raw.Minute())...)
-	t.buf = append(t.buf, fastConvertSecond(t.raw.Second())...)
+	t.raw = time.Now()
+	year, month, day := t.raw.Date()
+	hour, minute, second := t.raw.Hour(), t.raw.Minute(), t.raw.Second()
+	tmp := fastConvertAllToSlice(year, int(month), day, hour, minute, second)
+	t.buf.Store(tmp)
 }
 
 func (t *TimeFactory) Start() {
-	if t.buf == nil || len(t.buf) == 0 {
-		t.raw = time.Now()
-		t.appendBuf()
-	}
+	t.appendBuf()
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * 10)
-			t.rwMu.Lock()
-			t.raw = time.Now()
 			t.appendBuf()
-			t.rwMu.Unlock()
 		}
 	}()
 }
 
 func (t *TimeFactory) Get() []byte {
-	t.rwMu.RLock()
-	defer t.rwMu.RUnlock()
-	return t.buf
+	//return *(*[32]byte)(unsafe.Pointer(atomic.LoadUintptr((*uintptr)(unsafe.Pointer(&t.buf)))))
+	return t.buf.Load().([]byte)
 }
 
-func (t *TimeFactory) GetRaw() time.Time {
-	t.rwMu.RLock()
-	defer t.rwMu.RUnlock()
-	return t.raw
-}
+// TODO 废弃
+//func (t *TimeFactory) GetRaw() time.Time {
+//	for !(atomic.LoadInt32(&t.er) == _READER) {
+//		time.Sleep(time.Nanosecond * 2)
+//	}
+//	return t.raw
+//}
