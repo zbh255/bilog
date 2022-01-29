@@ -2,16 +2,59 @@ package bilog
 
 import (
 	"bytes"
+	"errors"
 	"log"
-	"os"
 	"sync"
 	"testing"
 	"time"
 )
 
+// 测试等级不同的日志是否写入的写入器
+type TestLevelWriter struct {
+	setLevel level
+	liveLevel level
+}
+
+func (t *TestLevelWriter) Check(liveLevel level) bool {
+	return t.setLevel >= liveLevel
+}
+
+func (t *TestLevelWriter) SetLiveLevel(liveLevel level) {
+	t.liveLevel = liveLevel
+}
+
+func (t *TestLevelWriter) Write(p []byte) (n int, err error) {
+	if !t.Check(t.liveLevel) && len(p) > 0 {
+		panic("setLevel less than liveLevel")
+	}
+	return len(p), nil
+}
+
 func TestFeature(t *testing.T) {
-	logger := NewLogger(os.Stdout, PANIC)
+	test := &TestLevelWriter{
+		setLevel: TRACE,
+	}
+	logger := NewLogger(test, TRACE)
+	// info log
+	test.SetLiveLevel(INFO)
 	logger.Info("hello world")
+	logger.Flush()
+	// debug log
+	test.SetLiveLevel(DEBUG)
+	logger.Debug("hello world")
+	logger.Flush()
+	// trace log
+	test.SetLiveLevel(TRACE)
+	logger.Trace("hello world")
+	logger.Flush()
+	// error log
+	test.SetLiveLevel(ERROR)
+	logger.ErrorFromErr(errors.New("my is error"))
+	logger.Flush()
+	// panic log
+	test.SetLiveLevel(PANIC)
+	logger.PanicFromString("my is panic")
+	logger.Flush()
 }
 
 type TestWriter struct {
