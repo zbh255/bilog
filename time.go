@@ -3,6 +3,7 @@ package bilog
 import (
 	"sync/atomic"
 	"time"
+	"unsafe"
 )
 
 const (
@@ -11,9 +12,7 @@ const (
 )
 
 type TimeFactory struct {
-	eff int
-	buf atomic.Value
-	raw time.Time
+	buf unsafe.Pointer
 }
 
 func NewTimeFactory() *TimeFactory {
@@ -35,11 +34,11 @@ func NewTimeFactory() *TimeFactory {
 //}
 
 func (t *TimeFactory) appendBuf() {
-	t.raw = time.Now()
-	year, month, day := t.raw.Date()
-	hour, minute, second := t.raw.Hour(), t.raw.Minute(), t.raw.Second()
+	timeTmp := time.Now()
+	year, month, day := timeTmp.Date()
+	hour, minute, second := timeTmp.Hour(), timeTmp.Minute(), timeTmp.Second()
 	tmp := fastConvertAllToSlice(year, int(month), day, hour, minute, second)
-	t.buf.Store(tmp)
+	atomic.StorePointer(&t.buf, unsafe.Pointer(&tmp))
 }
 
 func (t *TimeFactory) Start() {
@@ -47,6 +46,7 @@ func (t *TimeFactory) Start() {
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * 10)
+			//time.Sleep(time.Second)
 			t.appendBuf()
 		}
 	}()
@@ -54,7 +54,7 @@ func (t *TimeFactory) Start() {
 
 func (t *TimeFactory) Get() []byte {
 	//return *(*[32]byte)(unsafe.Pointer(atomic.LoadUintptr((*uintptr)(unsafe.Pointer(&t.buf)))))
-	return t.buf.Load().([]byte)
+	return *(*[]byte)(atomic.LoadPointer(&t.buf))
 }
 
 // TODO 废弃
