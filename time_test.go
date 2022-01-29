@@ -14,10 +14,32 @@ func BenchmarkTimeFactory(b *testing.B) {
 	})
 	b.Run("TimeFactoryNoRaw", func(b *testing.B) {
 		b.ReportAllocs()
-		factory := &TimeFactory{}
+		factory := NewTimeFactory()
 		factory.Start()
 		for i := 0; i < b.N; i++ {
 			_ = factory.Get()
+		}
+	})
+	b.Run("TimeFactoryZeroNoRaw", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := NewTimeFactoryZero()
+		factory.Start()
+		for i := 0; i < b.N; i++ {
+			_, _ = factory.Get()
+		}
+	})
+	b.Run("TimeFactoryAppendBuf", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := NewTimeFactory()
+		for i := 0; i < b.N; i++ {
+			factory.appendBuf()
+		}
+	})
+	b.Run("TimeFactoryZeroAppendBuf", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := NewTimeFactoryZero()
+		for i := 0; i < b.N; i++ {
+			factory.appendBuf()
 		}
 	})
 }
@@ -61,27 +83,47 @@ func stackCreate() [32]byte {
 
 // 测试生成的时间序列是否连续
 func TestTimeFactory(t *testing.T) {
+	parse := "2006-01-02 15:04:05"
 	factory := &TimeFactory{}
 	factory.Start()
-	buf := make([][]byte, 100)
+	buf := make([]string, 100)
 	for k := range buf {
 		time.Sleep(time.Millisecond * 10)
 		tmp := factory.Get()
-		buf[k] = tmp
+		buf[k] = string(tmp)[:len(tmp) - 1]
 	}
 	// 测试时间的误差
-	//top := buf[0].Unix()
-	//var offSet int64
-	//for _, v := range buf {
-	//	offSet = v.Unix() - top
-	//}
-	//if offSet > 10 {
-	//	t.Error("time offSet max")
-	//}
+	top,err := time.Parse(parse,buf[0])
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var offSet int64
+	for _, v := range buf {
+		tmp,err := time.Parse(parse,v)
+		if err != nil {
+			t.Error(err)
+		}
+		offSet = tmp.Unix() - top.Unix()
+	}
+
+	if offSet > 10 {
+		t.Error("time offSet max")
+	}
 }
 
 func TestFactoryCreate(t *testing.T) {
 	factory := NewTimeFactory()
 	factory.Start()
 	t.Log(factory.Get())
+}
+
+
+// panic日志的测试
+// fatal error: found bad pointer in Go heap (incorrect use of unsafe or cgo?)
+func TestFactoryPointer(t *testing.T) {
+	factory := NewTimeFactory()
+	factory.Start()
+	factory.Get()
+	time.Sleep(time.Second * 10)
 }
