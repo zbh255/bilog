@@ -1,5 +1,9 @@
 package bilog
 
+/*
+	这个包里定义了bilog中抽象的接口
+*/
+
 // 日志的级别
 type level int
 
@@ -21,4 +25,8 @@ type Logger interface {
 	PanicFromErr(e error)
 	PanicFromString(s string)
 	Flush()
+}
+
+type options interface {
+	apply(option *loggerConfig)
 }
