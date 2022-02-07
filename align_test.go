@@ -19,7 +19,7 @@ name=lowBuf 	ptr=%p type=%18T offset=%3d size=%3d align=%d
 `
 
 func TestLoggerSize(t *testing.T) {
-	log := NewLogger(os.Stdout, PANIC).(*SimpleLogger)
+	log := NewLogger(os.Stdout, PANIC)
 	fmt.Printf(simpleLoggerFmt, &log.mu, log.mu, unsafe.Offsetof(log.mu), unsafe.Sizeof(&log.mu), unsafe.Alignof(log.mu),
 		&log.factory, log.factory, unsafe.Offsetof(log.factory), unsafe.Sizeof(log.factory), unsafe.Alignof(log.factory),
 		&log.level, &log.level, unsafe.Offsetof(log.level), unsafe.Sizeof(log.level), unsafe.Alignof(log.level),

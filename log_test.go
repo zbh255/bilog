@@ -141,3 +141,33 @@ func TestSync(t *testing.T) {
 	wg.Wait()
 	t.Log(time.Duration(times))
 }
+
+/*
+goos: darwin
+goarch: amd64
+pkg: github.com/zbh255/bilog
+cpu: Intel(R) Core(TM) i7-8705G CPU @ 3.10GHz
+BenchmarkInterfaceCall
+BenchmarkInterfaceCall/Interfaces
+BenchmarkInterfaceCall/Interfaces-8         	31814370	        40.93 ns/op	       0 B/op	       0 allocs/op
+BenchmarkInterfaceCall/NoInterfaces
+BenchmarkInterfaceCall/NoInterfaces-8       	36872288	        33.63 ns/op	       0 B/op	       0 allocs/op
+PASS
+*/
+// 测试发现，在bilog中通过接口调用会带来10%的性能损失，这一部分可以优化
+func BenchmarkInterfaceCall(b *testing.B) {
+	b.Run("Interfaces", func(b *testing.B) {
+		b.ReportAllocs()
+		logger := Logger(NewLogger(&TestWriter{},PANIC))
+		for i := 0; i < b.N; i++ {
+			logger.Info("hello world!")
+		}
+	})
+	b.Run("NoInterfaces", func(b *testing.B) {
+		b.ReportAllocs()
+		logger := NewLogger(&TestWriter{},PANIC)
+		for i := 0; i < b.N; i++ {
+			logger.Info("hello world!")
+		}
+	})
+}

@@ -47,7 +47,7 @@ type SimpleLogger struct {
 	lowBuf []byte
 }
 
-func NewLogger(write io.Writer, l level) Logger {
+func NewLogger(write io.Writer, l level) *SimpleLogger {
 	factory := NewTimeFactory()
 	factory.Start()
 	return &SimpleLogger{

@@ -30,3 +30,10 @@ type Logger interface {
 type options interface {
 	apply(option *loggerConfig)
 }
+
+// 检查是否实现Logger接口
+// 通过接口调用方法会降低性能，但为了约束api的原因
+// 所以需要在此处检查
+func init() {
+	_ = Logger(&SimpleLogger{})
+}
