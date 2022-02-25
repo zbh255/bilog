@@ -3,6 +3,7 @@ package bilog
 import (
 	"io"
 	"reflect"
+	"strconv"
 	"sync"
 	"unsafe"
 )
@@ -35,12 +36,17 @@ type SimpleLogger struct {
 	factory *TimeFactory
 	// 设置的输出等级
 	level level
+	// config
+	confObj *loggerConfig
 	// 缓存level对应的string，避免频繁拷贝和分配
 	// 必须按照doc.go中定义的日志等级来初始化
 	levelCache []string
 	write      io.Writer
 	// 缓存格式化后的时间
 	timeBuf []byte
+	// 虽然runtime.Caller提供的file string已经逃逸到堆中，不用多次一举去拷贝
+	// 该buffer是主要为了line而提供的
+	callerBuf []byte
 	//TODO:计划删除
 	//prefix string
 	// 顶层缓冲区
@@ -49,9 +55,21 @@ type SimpleLogger struct {
 	lowBuf []byte
 }
 
-func NewLogger(write io.Writer, l level) *SimpleLogger {
-	factory := NewTimeFactory()
-	factory.Start()
+func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
+	var cf loggerConfig
+	if options == nil || len(options) == 0 {
+		WithDefault().apply(&cf)
+	} else {
+		for _, option := range options {
+			option.apply(&cf)
+		}
+	}
+
+	var factory *TimeFactory
+	if cf.tt.start {
+		factory = NewTimeFactory()
+		factory.Start()
+	}
 	return &SimpleLogger{
 		level: l,
 		write: write,
@@ -59,10 +77,12 @@ func NewLogger(write io.Writer, l level) *SimpleLogger {
 			"[INFO] ", "[DEBUG] ", "[TRACE] ", "[ERROR] ",
 			"[PANIC] ",
 		},
-		topBuf:  make([]byte, TOP_BUFFER_SIZE),
-		lowBuf:  make([]byte, 0, LOW_BUFFER_SIZE),
-		timeBuf: make([]byte, 0, TIME_BUF_SIZE),
-		factory: factory,
+		confObj:   &cf,
+		callerBuf: make([]byte, CALLER_BUF_SIZE),
+		topBuf:    make([]byte, TOP_BUFFER_SIZE),
+		lowBuf:    make([]byte, 0, LOW_BUFFER_SIZE),
+		timeBuf:   make([]byte, 0, TIME_BUF_SIZE),
+		factory:   factory,
 	}
 }
 
@@ -123,29 +143,44 @@ func (l *SimpleLogger) resetLowBuf() {
 	l.lowBuf = *(*[]byte)(unsafe.Pointer(h))
 }
 
-func (l *SimpleLogger) Print(s string, level level) {
+func (l *SimpleLogger) printTime(level level) {
+	l.resetTopBuf()
+	// 获取日志的时间
+	if l.confObj.tt.start {
+		l.fastConvert()
+	}
+
+	l.topBuf = append(l.topBuf, l.levelCache[level]...)
+	l.topBuf = append(l.topBuf, l.timeBuf...)
+}
+
+// 在最顶层调用以提升性能
+func (l *SimpleLogger) printCaller() {
+	// reset
+	l.callerBuf = l.callerBuf[:0]
+
+	file, line := Caller(defaultCallDepth)
+	l.callerBuf = append(l.callerBuf, file...)
+	l.callerBuf = append(l.callerBuf, cacheSplit)
+	l.callerBuf = append(l.callerBuf, strconv.Itoa(line)...)
+}
+
+func (l *SimpleLogger) print(s string, level level) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	l.resetTopBuf()
-	// 获取日志的时间
-	l.fastConvert()
-	l.topBuf = append(l.topBuf, l.levelCache[level]...)
-	l.topBuf = append(l.topBuf, l.timeBuf...)
+	l.printTime(level)
 	l.topBuf = append(l.topBuf, s...)
 
 	l.writeLowBuf()
 }
 
-func (l *SimpleLogger) Println(s string, level level) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
+func (l *SimpleLogger) println(s string, level level) {
 
 	l.resetTopBuf()
-	// 获取日志的时间
-	l.fastConvert()
-	l.topBuf = append(l.topBuf, l.levelCache[level]...)
-	l.topBuf = append(l.topBuf, l.timeBuf...)
+	l.printTime(level)
+	l.topBuf = append(l.topBuf, l.callerBuf...)
+	l.topBuf = append(l.topBuf, cacheSpace)
 	l.topBuf = append(l.topBuf, s...)
 	l.topBuf = append(l.topBuf, cacheEntry)
 
@@ -165,21 +200,36 @@ func (l *SimpleLogger) Info(s string) {
 	if !l.checkLevel(INFO) {
 		return
 	}
-	l.Println(s, INFO)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(s, INFO)
 }
 
 func (l *SimpleLogger) Debug(s string) {
 	if !l.checkLevel(DEBUG) {
 		return
 	}
-	l.Println(s, DEBUG)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(s, DEBUG)
 }
 
 func (l *SimpleLogger) Trace(s string) {
 	if !l.checkLevel(TRACE) {
 		return
 	}
-	l.Println(s, TRACE)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(s, TRACE)
 }
 
 //TODO: 优雅地处理error
@@ -187,21 +237,36 @@ func (l *SimpleLogger) ErrorFromErr(e error) {
 	if !l.checkLevel(ERROR) {
 		return
 	}
-	l.Println(e.Error(), ERROR)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(e.Error(), ERROR)
 }
 
 func (l *SimpleLogger) ErrorFromString(s string) {
 	if !l.checkLevel(ERROR) {
 		return
 	}
-	l.Println(s, ERROR)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(s, ERROR)
 }
 
 func (l *SimpleLogger) PanicFromErr(e error) {
 	if !l.checkLevel(PANIC) {
 		return
 	}
-	l.Println(e.Error(), ERROR)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(e.Error(), ERROR)
 	panic(e)
 }
 
@@ -209,7 +274,12 @@ func (l *SimpleLogger) PanicFromString(s string) {
 	if !l.checkLevel(PANIC) {
 		return
 	}
-	l.Println(s, ERROR)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.confObj.st.start {
+		l.printCaller()
+	}
+	l.println(s, ERROR)
 	panic(s)
 }
 
