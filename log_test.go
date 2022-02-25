@@ -98,6 +98,23 @@ func BenchmarkLogger(b *testing.B) {
 			logger.Flush()
 		}
 	})
+	b.Run("BilogCallerAndTime", func(b *testing.B) {
+		b.ReportAllocs()
+		logger := NewLogger(&TestWriter{},PANIC,
+			WithTimes(),
+			WithCaller(),
+		)
+		for i := 0; i < b.N; i++ {
+			logger.Info("hello world")
+		}
+	})
+	b.Run("StdLogCallerAndTime", func(b *testing.B) {
+		b.ReportAllocs()
+		logger := log.New(&TestWriter{},"[PANIC]",log.Llongfile | log.Ltime)
+		for i := 0; i < b.N; i++ {
+			logger.Println("hello world!")
+		}
+	})
 	b.Run("StdLog", func(b *testing.B) {
 		b.ReportAllocs()
 		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
@@ -113,6 +130,16 @@ func BenchmarkLogger(b *testing.B) {
 			logger.Println("hello world")
 			logger.SetPrefix("[DEBUG] ")
 			logger.Println("hello world")
+		}
+	})
+}
+
+func BenchmarkCallerLogger(b *testing.B) {
+	b.Run("StdLog", func(b *testing.B) {
+		b.ReportAllocs()
+		logger := log.New(&TestWriter{},"[Error]",log.Llongfile | log.Ltime)
+		for i := 0; i < b.N; i++ {
+			logger.Println("hello world!")
 		}
 	})
 }
