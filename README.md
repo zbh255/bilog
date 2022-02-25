@@ -37,13 +37,17 @@ pkg: github.com/zbh255/bilog
 cpu: Intel(R) Core(TM) i7-8705G CPU @ 3.10GHz
 BenchmarkLogger
 BenchmarkLogger/BiLog
-BenchmarkLogger/BiLog-8         	27178174	        40.88 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogger/BiLog-8         	24042242	        43.53 ns/op	       0 B/op	       0 allocs/op
 BenchmarkLogger/BiLogDouble
-BenchmarkLogger/BiLogDouble-8   	16400420	        72.73 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogger/BiLogDouble-8   	14993350	        80.67 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLogger/BilogCallerAndTime
+BenchmarkLogger/BilogCallerAndTime-8         	 1952274	       608.8 ns/op	     224 B/op	       3 allocs/op
+BenchmarkLogger/StdLogCallerAndTime
+BenchmarkLogger/StdLogCallerAndTime-8        	 1482902	       804.7 ns/op	     232 B/op	       3 allocs/op
 BenchmarkLogger/StdLog
-BenchmarkLogger/StdLog-8        	 4006606	       297.4 ns/op	      16 B/op	       1 allocs/op
+BenchmarkLogger/StdLog-8                     	 4112342	       288.9 ns/op	      16 B/op	       1 allocs/op
 BenchmarkLogger/StdLogDouble
-BenchmarkLogger/StdLogDouble-8  	 1925840	       612.0 ns/op	      32 B/op	       2 allocs/op
+BenchmarkLogger/StdLogDouble-8               	 1974378	       604.7 ns/op	      32 B/op	       2 allocs/op
 PASS
 ```
 
