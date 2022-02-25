@@ -18,12 +18,14 @@ const (
 	TOP_BUFFER_SIZE = 256
 	LOW_BUFFER_SIZE = TOP_BUFFER_SIZE * 6
 	TIME_BUF_SIZE   = 64
-	PREFIX_BUF_SIZE = 64
+	CALLER_BUF_SIZE = 64
 )
 
 // 缓存特殊的字符
 var (
 	cacheEntry byte = '\n'
+	cacheSplit byte = ':'
+	cacheSpace byte = ' '
 )
 
 // SimpleLogger atomic flag 会有公平性的问题
