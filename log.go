@@ -96,10 +96,14 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 
 // TODO优化转换速度
 func (l *SimpleLogger) fastConvert() {
-	l.resetTimeBuf()
-	date := l.factory.Get()
+	if !l.factory.UpdateOf() {
+		return
+	} else {
+		l.resetTimeBuf()
+		date := l.factory.Get()
 
-	l.timeBuf = append(l.timeBuf, date...)
+		l.timeBuf = append(l.timeBuf, date...)
+	}
 }
 
 // 重置用于保存时间的缓冲区

@@ -44,6 +44,31 @@ func BenchmarkTimeFactory(b *testing.B) {
 	})
 }
 
+func BenchmarkTimeFactoryUpdateOf(b *testing.B) {
+	b.Run("UsageUpdateOf", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := NewTimeFactory()
+		factory.Start()
+		timeBuf := make([]byte,32)
+		for i := 0; i < b.N; i++ {
+			if !factory.UpdateOf() {
+				continue
+			} else {
+				copy(timeBuf[:], factory.Get())
+			}
+		}
+	})
+	b.Run("NoUsageUpdateOf", func(b *testing.B) {
+		b.ReportAllocs()
+		factory := NewTimeFactory()
+		factory.Start()
+		timeBuf := make([]byte,32)
+		for i := 0; i < b.N; i++ {
+			copy(timeBuf[:], factory.Get())
+		}
+	})
+}
+
 // 禁止编译器优化: -gcflags "-N -l"
 /*
 goos: darwin

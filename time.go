@@ -15,6 +15,8 @@ type TimeFactory struct {
 	buf unsafe.Pointer
 	// 是否已经启动
 	startOf bool
+	// 上次生产的时间是否已经被更新
+	updateOf bool
 }
 
 func NewTimeFactory() *TimeFactory {
@@ -51,11 +53,16 @@ func (t *TimeFactory) Start() {
 	t.startOf = true
 
 	t.appendBuf()
+	// 首次更新，这样可以减少上层代码的一次if cycle
+	t.updateOf = true
+
 	go func() {
 		for {
+			t.updateOf = false
 			time.Sleep(time.Millisecond * 10)
 			//time.Sleep(time.Second)
 			t.appendBuf()
+			t.updateOf = true
 		}
 	}()
 }
@@ -63,6 +70,10 @@ func (t *TimeFactory) Start() {
 func (t *TimeFactory) Get() []byte {
 	//return *(*[32]byte)(unsafe.Pointer(atomic.LoadUintptr((*uintptr)(unsafe.Pointer(&t.buf)))))
 	return *(*[]byte)(atomic.LoadPointer(&t.buf))
+}
+
+func (t *TimeFactory) UpdateOf() bool {
+	return t.updateOf
 }
 
 // TODO 废弃
