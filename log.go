@@ -67,7 +67,7 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 
 	var factory *TimeFactory
 	if cf.tt.start {
-		factory = NewTimeFactory()
+		factory = timeFactory
 		factory.Start()
 	}
 	return &SimpleLogger{

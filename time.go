@@ -13,6 +13,8 @@ const (
 
 type TimeFactory struct {
 	buf unsafe.Pointer
+	// 是否已经启动
+	startOf bool
 }
 
 func NewTimeFactory() *TimeFactory {
@@ -42,6 +44,12 @@ func (t *TimeFactory) appendBuf() {
 }
 
 func (t *TimeFactory) Start() {
+	// 已经启动factory则不再启动另外的factory
+	if t.startOf {
+		return
+	}
+	t.startOf = true
+
 	t.appendBuf()
 	go func() {
 		for {
