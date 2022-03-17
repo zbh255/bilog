@@ -50,12 +50,15 @@ func BenchmarkTimeFactoryUpdateOf(b *testing.B) {
 		factory := NewTimeFactory()
 		factory.Start()
 		timeBuf := make([]byte,32)
+		oldTimeStamp := time.Now().UnixNano()
 		for i := 0; i < b.N; i++ {
-			if !factory.UpdateOf() {
+			timeStamp := factory.TimeStamp()
+			if !(timeStamp - oldTimeStamp > int64(time.Millisecond * 10)) {
 				continue
 			} else {
 				copy(timeBuf[:], factory.Get())
 			}
+			oldTimeStamp = timeStamp
 		}
 	})
 	b.Run("NoUsageUpdateOf", func(b *testing.B) {

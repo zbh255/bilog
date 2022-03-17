@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"sync"
+	"time"
 	"unsafe"
 )
 
@@ -44,6 +45,8 @@ type SimpleLogger struct {
 	write      io.Writer
 	// 缓存格式化后的时间
 	timeBuf []byte
+	// 缓存的纳秒级时间戳
+	timeStamp int64
 	// 虽然runtime.Caller提供的file string已经逃逸到堆中，不用多次一举去拷贝
 	// 该buffer是主要为了line而提供的
 	callerBuf []byte
@@ -96,9 +99,13 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 
 // TODO优化转换速度
 func (l *SimpleLogger) fastConvert() {
-	if !l.factory.UpdateOf() {
+	// 比较新老时间戳，如果还在有效时间之内则不更新timeBuf里的内容，减少memmove次数
+	timeStamp := l.factory.TimeStamp()
+	if !(timeStamp - l.timeStamp > int64(time.Millisecond * 10) && len(l.timeBuf) > 0) {
+		l.timeStamp = timeStamp
 		return
 	} else {
+		l.timeStamp = timeStamp
 		l.resetTimeBuf()
 		date := l.factory.Get()
 
@@ -163,7 +170,7 @@ func (l *SimpleLogger) printCaller() {
 	// reset
 	l.callerBuf = l.callerBuf[:0]
 
-	file, line := Caller(defaultCallDepth)
+	file, line := CallerOfConcurrentCache(defaultCallDepth)
 	l.callerBuf = append(l.callerBuf, file...)
 	l.callerBuf = append(l.callerBuf, cacheSplit)
 	l.callerBuf = append(l.callerBuf, strconv.Itoa(line)...)

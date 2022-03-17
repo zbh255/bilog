@@ -15,8 +15,8 @@ type TimeFactory struct {
 	buf unsafe.Pointer
 	// 是否已经启动
 	startOf bool
-	// 上次生产的时间是否已经被更新
-	updateOf bool
+	// 纳秒时间戳
+	timeStamp int64
 }
 
 func NewTimeFactory() *TimeFactory {
@@ -43,6 +43,7 @@ func (t *TimeFactory) appendBuf() {
 	hour, minute, second := timeTmp.Hour(), timeTmp.Minute(), timeTmp.Second()
 	tmp := fastConvertAllToSlice(year, int(month), day, hour, minute, second)
 	atomic.StorePointer(&t.buf, unsafe.Pointer(&tmp))
+	atomic.StoreInt64(&t.timeStamp,timeTmp.UnixNano())
 }
 
 func (t *TimeFactory) Start() {
@@ -53,16 +54,12 @@ func (t *TimeFactory) Start() {
 	t.startOf = true
 
 	t.appendBuf()
-	// 首次更新，这样可以减少上层代码的一次if cycle
-	t.updateOf = true
 
 	go func() {
 		for {
-			t.updateOf = false
 			time.Sleep(time.Millisecond * 10)
 			//time.Sleep(time.Second)
 			t.appendBuf()
-			t.updateOf = true
 		}
 	}()
 }
@@ -72,8 +69,8 @@ func (t *TimeFactory) Get() []byte {
 	return *(*[]byte)(atomic.LoadPointer(&t.buf))
 }
 
-func (t *TimeFactory) UpdateOf() bool {
-	return t.updateOf
+func (t *TimeFactory) TimeStamp() int64 {
+	return atomic.LoadInt64(&t.timeStamp)
 }
 
 // TODO 废弃
