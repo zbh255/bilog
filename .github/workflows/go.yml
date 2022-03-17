@@ -21,12 +21,11 @@ jobs:
         minimum-size: 13GB 
         maximum-size: 13GB
         disk-root: "D:"
-    - uses: actions/checkout@v2
-    
-    - name: Set up Go
+    - name: Install Go
       uses: actions/setup-go@v2
       with:
         go-version: ${{matrix.go_version}}
-
+    - name: CheckOut Code
+      uses: actions/checkout@v2
     - name: Test
       run: go test -v -race .
