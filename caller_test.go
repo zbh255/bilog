@@ -14,6 +14,12 @@ func BenchmarkCaller(b *testing.B) {
 			_,_ = Caller(1)
 		}
 	})
+	b.Run("CallerCached", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			_,_ = CallerOfCache(1)
+		}
+	})
 }
 
 func TestCaller(t *testing.T) {
