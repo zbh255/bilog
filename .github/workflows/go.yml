@@ -16,9 +16,11 @@ jobs:
     steps:
     - name: Configure Pagefile
       uses: al-cheb/configure-pagefile-action@v1.2
+      if: matrix.os == 'windows-latest'
       with:
         minimum-size: 13GB 
         maximum-size: 13GB
+        disk-root: "D:"
     - uses: actions/checkout@v2
     
     - name: Set up Go
