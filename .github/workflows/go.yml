@@ -22,7 +22,7 @@ jobs:
         go-version: ${{matrix.go_version}}
 
     - name: Test
-      run: go test -race -v ./...
+      run: go test -v -race ./...
   
   linux-test:
     runs-on: windows-latest
@@ -38,7 +38,7 @@ jobs:
         go-version: ${{matrix.go_version}}
 
     - name: Test
-      run: go test -race -v ./...
+      run: go test -v -race ./...
       
   macos-test:
     runs-on: windows-latest
@@ -54,4 +54,4 @@ jobs:
         go-version: ${{matrix.go_version}}
 
     - name: Test
-      run: go test -race -v ./...
+      run: go test -v -race ./...
