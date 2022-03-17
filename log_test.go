@@ -11,7 +11,7 @@ import (
 
 // 测试等级不同的日志是否写入的写入器
 type TestLevelWriter struct {
-	setLevel level
+	setLevel  level
 	liveLevel level
 }
 
@@ -100,7 +100,7 @@ func BenchmarkLogger(b *testing.B) {
 	})
 	b.Run("BilogCallerAndTime", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{},PANIC,
+		logger := NewLogger(&TestWriter{}, PANIC,
 			WithTimes(),
 			WithCaller(),
 		)
@@ -110,7 +110,7 @@ func BenchmarkLogger(b *testing.B) {
 	})
 	b.Run("StdLogCallerAndTime", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := log.New(&TestWriter{},"[PANIC]",log.Llongfile | log.Ltime)
+		logger := log.New(&TestWriter{}, "[PANIC]", log.Llongfile|log.Ltime)
 		for i := 0; i < b.N; i++ {
 			logger.Println("hello world!")
 		}
@@ -137,7 +137,7 @@ func BenchmarkLogger(b *testing.B) {
 func BenchmarkCallerLogger(b *testing.B) {
 	b.Run("StdLog", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := log.New(&TestWriter{},"[Error]",log.Llongfile | log.Ltime)
+		logger := log.New(&TestWriter{}, "[Error]", log.Llongfile|log.Ltime)
 		for i := 0; i < b.N; i++ {
 			logger.Println("hello world!")
 		}
@@ -185,14 +185,14 @@ PASS
 func BenchmarkInterfaceCall(b *testing.B) {
 	b.Run("Interfaces", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := Logger(NewLogger(&TestWriter{},PANIC))
+		logger := Logger(NewLogger(&TestWriter{}, PANIC))
 		for i := 0; i < b.N; i++ {
 			logger.Info("hello world!")
 		}
 	})
 	b.Run("NoInterfaces", func(b *testing.B) {
 		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{},PANIC)
+		logger := NewLogger(&TestWriter{}, PANIC)
 		for i := 0; i < b.N; i++ {
 			logger.Info("hello world!")
 		}

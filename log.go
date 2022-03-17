@@ -101,7 +101,7 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 func (l *SimpleLogger) fastConvert() {
 	// 比较新老时间戳，如果还在有效时间之内则不更新timeBuf里的内容，减少memmove次数
 	timeStamp := l.factory.TimeStamp()
-	if !(timeStamp - l.timeStamp > int64(time.Millisecond * 10) && len(l.timeBuf) > 0) {
+	if !(timeStamp-l.timeStamp > int64(time.Millisecond*10) && len(l.timeBuf) > 0) {
 		l.timeStamp = timeStamp
 		return
 	} else {

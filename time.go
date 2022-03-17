@@ -43,7 +43,7 @@ func (t *TimeFactory) appendBuf() {
 	hour, minute, second := timeTmp.Hour(), timeTmp.Minute(), timeTmp.Second()
 	tmp := fastConvertAllToSlice(year, int(month), day, hour, minute, second)
 	atomic.StorePointer(&t.buf, unsafe.Pointer(&tmp))
-	atomic.StoreInt64(&t.timeStamp,timeTmp.UnixNano())
+	atomic.StoreInt64(&t.timeStamp, timeTmp.UnixNano())
 }
 
 func (t *TimeFactory) Start() {

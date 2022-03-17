@@ -7,7 +7,7 @@ type loggerConfig struct {
 
 // 输出时间的模板
 type timeTemplate struct {
-	start bool
+	start  bool
 	region int
 }
 

@@ -35,7 +35,7 @@ func BenchmarkConvertAll(b *testing.B) {
 		year, month, day := now.Date()
 		hour, minute, second := now.Hour(), now.Minute(), now.Second()
 		for i := 0; i < b.N; i++ {
-			_,_ = fastConvertAllToArray(year, int(month), day, hour, minute, second)
+			_, _ = fastConvertAllToArray(year, int(month), day, hour, minute, second)
 		}
 	})
 	b.Run("Slice", func(b *testing.B) {

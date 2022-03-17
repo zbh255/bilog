@@ -49,11 +49,11 @@ func BenchmarkTimeFactoryUpdateOf(b *testing.B) {
 		b.ReportAllocs()
 		factory := NewTimeFactory()
 		factory.Start()
-		timeBuf := make([]byte,32)
+		timeBuf := make([]byte, 32)
 		oldTimeStamp := time.Now().UnixNano()
 		for i := 0; i < b.N; i++ {
 			timeStamp := factory.TimeStamp()
-			if !(timeStamp - oldTimeStamp > int64(time.Millisecond * 10)) {
+			if !(timeStamp-oldTimeStamp > int64(time.Millisecond*10)) {
 				continue
 			} else {
 				copy(timeBuf[:], factory.Get())
@@ -65,7 +65,7 @@ func BenchmarkTimeFactoryUpdateOf(b *testing.B) {
 		b.ReportAllocs()
 		factory := NewTimeFactory()
 		factory.Start()
-		timeBuf := make([]byte,32)
+		timeBuf := make([]byte, 32)
 		for i := 0; i < b.N; i++ {
 			copy(timeBuf[:], factory.Get())
 		}
@@ -101,7 +101,7 @@ func BenchmarkMemoryCreate(b *testing.B) {
 }
 
 func heapCreate(n int) []byte {
-	return make([]byte,n)
+	return make([]byte, n)
 }
 
 func stackCreate() [32]byte {
@@ -118,17 +118,17 @@ func TestTimeFactory(t *testing.T) {
 	for k := range buf {
 		time.Sleep(time.Millisecond * 10)
 		tmp := factory.Get()
-		buf[k] = string(tmp)[:len(tmp) - 1]
+		buf[k] = string(tmp)[:len(tmp)-1]
 	}
 	// 测试时间的误差
-	top,err := time.Parse(parse,buf[0])
+	top, err := time.Parse(parse, buf[0])
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	var offSet int64
 	for _, v := range buf {
-		tmp,err := time.Parse(parse,v)
+		tmp, err := time.Parse(parse, v)
 		if err != nil {
 			t.Error(err)
 		}
@@ -145,7 +145,6 @@ func TestFactoryCreate(t *testing.T) {
 	factory.Start()
 	t.Log(factory.Get())
 }
-
 
 // panic日志的测试
 // fatal error: found bad pointer in Go heap (incorrect use of unsafe or cgo?)
