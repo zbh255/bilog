@@ -17,9 +17,9 @@ import (
 */
 
 const (
-	TOP_BUFFER_SIZE = 256
-	LOW_BUFFER_SIZE = TOP_BUFFER_SIZE * 6
-	TIME_BUF_SIZE   = 64
+	DEFAULT_TOP_BUFFER_SIZE = 256
+	DEFAULT_LOW_BUFFER_SIZE = DEFAULT_TOP_BUFFER_SIZE * 6
+	TIME_BUF_SIZE           = 64
 	CALLER_BUF_SIZE = 64
 )
 
@@ -82,8 +82,8 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 		},
 		confObj:   &cf,
 		callerBuf: make([]byte, CALLER_BUF_SIZE),
-		topBuf:    make([]byte, TOP_BUFFER_SIZE),
-		lowBuf:    make([]byte, 0, LOW_BUFFER_SIZE),
+		topBuf:    make([]byte, cf.topBufferSize),
+		lowBuf:    make([]byte, 0, cf.lowBufferSize),
 		timeBuf:   make([]byte, 0, TIME_BUF_SIZE),
 		factory:   factory,
 	}
@@ -101,7 +101,7 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 func (l *SimpleLogger) fastConvert() {
 	// 比较新老时间戳，如果还在有效时间之内则不更新timeBuf里的内容，减少memmove次数
 	timeStamp := l.factory.TimeStamp()
-	if !(timeStamp-l.timeStamp > int64(time.Millisecond*10) && len(l.timeBuf) > 0) {
+	if !(timeStamp-l.timeStamp > int64(time.Millisecond*10)) && len(l.timeBuf) > 0 {
 		l.timeStamp = timeStamp
 		return
 	} else {
