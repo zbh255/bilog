@@ -166,7 +166,10 @@ func TestSync(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-	t.Log(time.Duration(times))
+	// 如果goroutine等待锁的时间太长则测试失败
+	if time.Duration(times) > time.Second {
+		t.Error("goroutine wait time out")
+	}
 }
 
 /*

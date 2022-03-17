@@ -1,6 +1,7 @@
 package bilog
 
 import (
+	ass "github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -20,24 +21,9 @@ func BenchmarkTimeFactory(b *testing.B) {
 			_ = factory.Get()
 		}
 	})
-	b.Run("TimeFactoryZeroNoRaw", func(b *testing.B) {
-		b.ReportAllocs()
-		factory := NewTimeFactoryZero()
-		factory.Start()
-		for i := 0; i < b.N; i++ {
-			_, _ = factory.Get()
-		}
-	})
 	b.Run("TimeFactoryAppendBuf", func(b *testing.B) {
 		b.ReportAllocs()
 		factory := NewTimeFactory()
-		for i := 0; i < b.N; i++ {
-			factory.appendBuf()
-		}
-	})
-	b.Run("TimeFactoryZeroAppendBuf", func(b *testing.B) {
-		b.ReportAllocs()
-		factory := NewTimeFactoryZero()
 		for i := 0; i < b.N; i++ {
 			factory.appendBuf()
 		}
@@ -140,17 +126,54 @@ func TestTimeFactory(t *testing.T) {
 	}
 }
 
+// 比对生成的秒级时间
 func TestFactoryCreate(t *testing.T) {
 	factory := NewTimeFactory()
-	factory.Start()
-	t.Log(factory.Get())
+	factory.appendBuf()
+	// 比对时间戳
+	now := time.Now()
+	assert := ass.New(t)
+	assert.Equal(now.Unix(),factory.TimeStamp()/int64(time.Second))
+	// 比对序列化时间
+	assert.Equal(factory.Get(),fastConvertAllToSlice(now.Year(), int(now.Month()),
+		now.Day(),now.Hour(),
+		now.Minute(),now.Second(),
+	))
 }
 
 // panic日志的测试
-// fatal error: found bad pointer in Go heap (incorrect use of unsafe or cgo?)
-func TestFactoryPointer(t *testing.T) {
+func TestFactoryConcurrentCreate(t *testing.T) {
+	assert := ass.New(t)
 	factory := NewTimeFactory()
 	factory.Start()
-	factory.Get()
-	time.Sleep(time.Second * 10)
+	timeBuf := string(factory.Get())
+	for i := 0; i < 10; i++ {
+		time.Sleep(time.Second)
+		newTimeBuf := string(factory.Get())
+		assert.NotEqual(timeBuf,newTimeBuf)
+	}
+}
+
+func TestFactoryTimeStamp(t *testing.T) {
+	factory := NewTimeFactory()
+	factory.Start()
+	// 间隔0.01ms收集factory的bool信息
+	boolSet := make(map[bool]int, 10)
+	var oldTimeStamp = time.Now().UnixNano()
+	for {
+		time.Sleep(time.Millisecond * 5)
+		timeStamp := factory.TimeStamp()
+		if timeStamp-oldTimeStamp > int64(time.Millisecond*10) {
+			boolSet[true]++
+		} else {
+			boolSet[false]++
+		}
+		oldTimeStamp = timeStamp
+		// 收集1024次
+		if boolSet[true]+boolSet[false] == 1024 {
+			break
+		}
+	}
+	assert := ass.New(t)
+	assert.NotEqual(boolSet[false],0)
 }
