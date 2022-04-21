@@ -1,4 +1,4 @@
-# Bilog [![Go Report Card](https://goreportcard.com/badge/github.com/zbh255/bilog)](https://goreportcard.com/report/github.com/zbh255/bilog) ![GitHub](https://img.shields.io/github/license/zbh255/bilog) ![GitHub](https://github.com/zbh255/bilog/actions/workflows/go.yml/badge.svg)
+# Bilog [![Go Report Card](https://goreportcard.com/badge/github.com/zbh255/bilog)](https://goreportcard.com/report/github.com/zbh255/bilog) ![GitHub](https://img.shields.io/github/license/zbh255/bilog) ![GitHub](https://github.com/zbh255/bilog/actions/workflows/go.yml/badge.svg) [![Go Doc](https://pkg.go.dev/badge/github.com/zbh255/bilog?utm_source=godoc)](https://pkg.go.dev/github.com/zbh255/bilog)
 
 bilog被设计为可以在需要性能，简单日志的场景下可以替换std log，它关注性能与轻量的实现。
 
