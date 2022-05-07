@@ -54,21 +54,10 @@ func WithLowBuffer(nTopBuffer int8) WithFunc {
 	}
 }
 
-// WithTopBuffer 2^pow
-// value = 2 ^ pow
-func WithTopBuffer(pow int8) WithFunc {
-	if pow > 20 {
-		return func(options *loggerConfig) {
-			options.topBufferSize = DEFAULT_TOP_BUFFER_SIZE
-		}
-	} else {
-		return func(options *loggerConfig) {
-			// No-Buffer
-			if pow == 0 {
-				options.topBufferSize = 1
-				return
-			}
-			options.topBufferSize = 2 << (pow - 1)
-		}
+// WithTopBuffer 原来的pow语义不够清晰，设置0-Buffer时无法提供一个清晰的语义
+// 所以将其改成直接设置Top-Buffer的大小
+func WithTopBuffer(lowBufferSize int32) WithFunc {
+	return func(options *loggerConfig) {
+		options.topBufferSize = int(lowBufferSize)
 	}
 }

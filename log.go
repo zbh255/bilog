@@ -81,7 +81,7 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 			"[PANIC] ",
 		},
 		confObj:   &cf,
-		callerBuf: make([]byte, CALLER_BUF_SIZE),
+		callerBuf: make([]byte, 0, CALLER_BUF_SIZE),
 		topBuf:    make([]byte, cf.topBufferSize),
 		lowBuf:    make([]byte, 0, cf.lowBufferSize),
 		timeBuf:   make([]byte, 0, TIME_BUF_SIZE),
@@ -122,6 +122,11 @@ func (l *SimpleLogger) resetTimeBuf() {
 
 // 写入到低层缓冲器，该函数会有一些检查
 func (l *SimpleLogger) writeLowBuf() {
+	// 使用No-Buffer时直接输出
+	if l.confObj.lowBufferSize == 0 {
+		writeHandle(l.write,l.topBuf)
+		return
+	}
 	if len(l.lowBuf)+len(l.topBuf) > cap(l.lowBuf) {
 		l.flushLowBuf()
 	}
@@ -130,28 +135,18 @@ func (l *SimpleLogger) writeLowBuf() {
 
 // 将lowBuf中的数据全部写入到writer中并reset
 func (l *SimpleLogger) flushLowBuf() {
-	n, err := l.write.Write(l.lowBuf)
-	if err != nil {
-		panic(err)
-	}
-	if n != len(l.lowBuf) {
-		panic("write byte not equal")
-	}
+	writeHandle(l.write,l.lowBuf)
 	l.resetLowBuf()
 }
 
 // 重置用于输出的缓冲区
 func (l *SimpleLogger) resetTopBuf() {
-	h := (*reflect.SliceHeader)(unsafe.Pointer(&l.topBuf))
-	h.Len = 0
-	l.topBuf = *(*[]byte)(unsafe.Pointer(h))
+	l.topBuf = l.topBuf[:0]
 }
 
 // 重置lowBuf
 func (l *SimpleLogger) resetLowBuf() {
-	h := (*reflect.SliceHeader)(unsafe.Pointer(&l.lowBuf))
-	h.Len = 0
-	l.lowBuf = *(*[]byte)(unsafe.Pointer(h))
+	l.lowBuf = l.lowBuf[:0]
 }
 
 func (l *SimpleLogger) printTime(level level) {
