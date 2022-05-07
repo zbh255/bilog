@@ -33,21 +33,54 @@ Cpu: i7-8705G 4C/8T 的测试结果，测试用例在`log_test.go`
 ```shell
 goos: darwin
 goarch: amd64
-pkg: github.com/zbh255/bilog
+pkg: github.com/zbh255/bilog/benchmark
 cpu: Intel(R) Core(TM) i7-8705G CPU @ 3.10GHz
-BenchmarkLogger
-BenchmarkLogger/BiLog
-BenchmarkLogger/BiLog-8         	27529932	        40.06 ns/op	       0 B/op	       0 allocs/op
-BenchmarkLogger/BiLogDouble
-BenchmarkLogger/BiLogDouble-8   	15309643	        76.50 ns/op	       0 B/op	       0 allocs/op
-BenchmarkLogger/BilogCallerAndTime
-BenchmarkLogger/BilogCallerAndTime-8         	 2653227	       437.8 ns/op	      16 B/op	       2 allocs/op
-BenchmarkLogger/StdLogCallerAndTime
-BenchmarkLogger/StdLogCallerAndTime-8        	 1467086	       824.3 ns/op	     232 B/op	       3 allocs/op
-BenchmarkLogger/StdLog
-BenchmarkLogger/StdLog-8                     	 4040354	       297.2 ns/op	      16 B/op	       1 allocs/op
-BenchmarkLogger/StdLogDouble
-BenchmarkLogger/StdLogDouble-8               	 1953411	       617.1 ns/op	      32 B/op	       2 allocs/op
+BenchmarkNoConcurrent
+BenchmarkNoConcurrent/Bilog-Buffer-1000
+BenchmarkNoConcurrent/Bilog-Buffer-1000-8         	   28856	     42290 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-Buffer-10000
+BenchmarkNoConcurrent/Bilog-Buffer-10000-8        	    3130	    384731 ns/op	       1 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-Buffer-100000
+BenchmarkNoConcurrent/Bilog-Buffer-100000-8       	     307	   3811345 ns/op	      18 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-NoBuffer-1000
+BenchmarkNoConcurrent/Bilog-NoBuffer-1000-8       	   31294	     36844 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-NoBuffer-10000
+BenchmarkNoConcurrent/Bilog-NoBuffer-10000-8      	    3140	    370229 ns/op	       1 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-NoBuffer-100000
+BenchmarkNoConcurrent/Bilog-NoBuffer-100000-8     	     321	   3677432 ns/op	      17 B/op	       0 allocs/op
+BenchmarkNoConcurrent/Bilog-NoBuffer-1000000
+BenchmarkNoConcurrent/Bilog-NoBuffer-1000000-8    	      32	  37684024 ns/op	     183 B/op	       6 allocs/op
+BenchmarkNoConcurrent/Stdlog-NoBuffer-1000
+BenchmarkNoConcurrent/Stdlog-NoBuffer-1000-8      	    4122	    285163 ns/op	   16006 B/op	    1000 allocs/op
+BenchmarkNoConcurrent/Stdlog-NoBuffer-10000
+BenchmarkNoConcurrent/Stdlog-NoBuffer-10000-8     	     420	   2877181 ns/op	  160072 B/op	   10000 allocs/op
+BenchmarkNoConcurrent/Stdlog-NoBuffer-100000
+BenchmarkNoConcurrent/Stdlog-NoBuffer-100000-8    	      39	  28613590 ns/op	 1600722 B/op	  100007 allocs/op
+BenchmarkNoConcurrent/Stdlog-NoBuffer-1000000
+BenchmarkNoConcurrent/Stdlog-NoBuffer-1000000-8   	       4	 286630937 ns/op	16006828 B/op	 1000072 allocs/op
+BenchmarkConcurrent
+BenchmarkConcurrent/Bilog-Buffer-1000
+BenchmarkConcurrent/Bilog-Buffer-1000-8           	    3691	    329624 ns/op	   24218 B/op	    1002 allocs/op
+BenchmarkConcurrent/Bilog-Buffer-10000
+BenchmarkConcurrent/Bilog-Buffer-10000-8          	     427	   2901827 ns/op	  252257 B/op	   10117 allocs/op
+BenchmarkConcurrent/Bilog-Buffer-100000
+BenchmarkConcurrent/Bilog-Buffer-100000-8         	      38	  31092050 ns/op	 2781661 B/op	  102667 allocs/op
+BenchmarkConcurrent/Bilog-NoBuffer-1000
+BenchmarkConcurrent/Bilog-NoBuffer-1000-8         	    3998	    322535 ns/op	   24090 B/op	    1001 allocs/op
+BenchmarkConcurrent/Bilog-NoBuffer-10000
+BenchmarkConcurrent/Bilog-NoBuffer-10000-8        	     414	   2804408 ns/op	  243948 B/op	   10042 allocs/op
+BenchmarkConcurrent/Bilog-NoBuffer-100000
+BenchmarkConcurrent/Bilog-NoBuffer-100000-8       	      43	  29338783 ns/op	 2539998 B/op	  101435 allocs/op
+BenchmarkConcurrent/Bilog-NoBuffer-1000000
+BenchmarkConcurrent/Bilog-NoBuffer-1000000-8      	       4	 290937219 ns/op	25162768 B/op	 1012153 allocs/op
+BenchmarkConcurrent/Stdlog-NoBuffer-1000
+BenchmarkConcurrent/Stdlog-NoBuffer-1000-8        	     428	   2874261 ns/op	   40569 B/op	    2006 allocs/op
+BenchmarkConcurrent/Stdlog-NoBuffer-10000
+BenchmarkConcurrent/Stdlog-NoBuffer-10000-8       	      40	  28370353 ns/op	  434488 B/op	   20361 allocs/op
+BenchmarkConcurrent/Stdlog-NoBuffer-100000
+BenchmarkConcurrent/Stdlog-NoBuffer-100000-8      	       4	 273002783 ns/op	 6138152 B/op	  222075 allocs/op
+BenchmarkConcurrent/Stdlog-NoBuffer-1000000
+BenchmarkConcurrent/Stdlog-NoBuffer-1000000-8     	       1	3035376571 ns/op	418629608 B/op	 3412337 allocs/op
 PASS
 ```
 
