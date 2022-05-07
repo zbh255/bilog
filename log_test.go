@@ -3,7 +3,6 @@ package bilog
 import (
 	"bytes"
 	"errors"
-	"log"
 	"sync"
 	"testing"
 	"time"
@@ -80,69 +79,6 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func BenchmarkLogger(b *testing.B) {
-	b.Run("BiLog", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{}, PANIC)
-		for i := 0; i < b.N; i++ {
-			logger.Debug("hello world")
-			logger.Flush()
-		}
-	})
-	b.Run("BiLogDouble", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{}, PANIC)
-		for i := 0; i < b.N; i++ {
-			logger.Info("hello world")
-			logger.Debug("hello world!")
-			logger.Flush()
-		}
-	})
-	b.Run("BilogCallerAndTime", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := NewLogger(&TestWriter{}, PANIC,
-			WithTimes(),
-			WithCaller(),
-		)
-		for i := 0; i < b.N; i++ {
-			logger.Info("hello world")
-		}
-	})
-	b.Run("StdLogCallerAndTime", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := log.New(&TestWriter{}, "[PANIC]", log.Llongfile|log.Ltime)
-		for i := 0; i < b.N; i++ {
-			logger.Println("hello world!")
-		}
-	})
-	b.Run("StdLog", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
-		for i := 0; i < b.N; i++ {
-			logger.Print("hello world")
-		}
-	})
-	b.Run("StdLogDouble", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := log.New(&TestWriter{}, "[Error] ", log.LstdFlags)
-		for i := 0; i < b.N; i++ {
-			logger.SetPrefix("[INFO] ")
-			logger.Println("hello world")
-			logger.SetPrefix("[DEBUG] ")
-			logger.Println("hello world")
-		}
-	})
-}
-
-func BenchmarkCallerLogger(b *testing.B) {
-	b.Run("StdLog", func(b *testing.B) {
-		b.ReportAllocs()
-		logger := log.New(&TestWriter{}, "[Error]", log.Llongfile|log.Ltime)
-		for i := 0; i < b.N; i++ {
-			logger.Println("hello world!")
-		}
-	})
-}
 
 func TestSync(t *testing.T) {
 	logger := NewLogger(&TestWriter{}, PANIC)
