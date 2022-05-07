@@ -63,6 +63,11 @@ func WithTopBuffer(pow int8) WithFunc {
 		}
 	} else {
 		return func(options *loggerConfig) {
+			// No-Buffer
+			if pow == 0 {
+				options.topBufferSize = 1
+				return
+			}
 			options.topBufferSize = 2 << (pow - 1)
 		}
 	}
