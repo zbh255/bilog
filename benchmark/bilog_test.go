@@ -21,7 +21,7 @@ func BenchmarkNoConcurrent(b *testing.B) {
 	bLogger := bilog.NewLogger(&TestWriter{},bilog.PANIC,bilog.WithDefault())
 	stdLogger := log.New(&TestWriter{},"[Error]",log.LstdFlags)
 	// bilog buffer
-	for i := 1; i <= 100; i *= 10 {
+	for i := 1; i <= 1000; i *= 10 {
 		b.Run(fmt.Sprintf("Bilog-Buffer-%d",initN * i), func(b *testing.B) {
 			b.ReportAllocs()
 			for j := 0; j < b.N; j++ {
@@ -61,7 +61,7 @@ func BenchmarkConcurrent(b *testing.B) {
 	bLogger := bilog.NewLogger(&TestWriter{},bilog.PANIC,bilog.WithDefault())
 	stdLogger := log.New(&TestWriter{},"[Error]",log.LstdFlags)
 	// bilog buffer
-	for i := 1; i <= 100; i *= 10 {
+	for i := 1; i <= 1000; i *= 10 {
 		b.Run(fmt.Sprintf("Bilog-Buffer-%d",initN * i), func(b *testing.B) {
 			b.ReportAllocs()
 			for j := 0; j < b.N; j++ {
