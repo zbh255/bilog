@@ -8,7 +8,11 @@ bilog被设计为可以在需要性能，简单日志的场景下可以替换std
 go get github.com/zbh255/bilog
 ```
 
-## Usage
+## Quick-Start
+
+> 下面的所有示例代码都可在本`repo`的`example`文件夹中找到
+
+### Print-Time
 
 ```go
 func main() {
@@ -26,7 +30,47 @@ func main() {
 [TRACE] 2022-01-24 12:53:29 hello world!
 ```
 
-### Benchmark
+### Print-Caller
+
+```go
+func main() {
+	logger := bilog.NewLogger(os.Stdout,bilog.PANIC,bilog.WithDefault(),bilog.WithCaller())
+	logger.Trace("hello world!")
+	logger.Debug("hello world!")
+	logger.Flush()
+}
+```
+
+`OutPut`
+
+```shell
+[TRACE] 2022-05-07 23:57:27 /Users/harder/Desktop/Git-Repo/github.com/zbh255/bilog/example/basic/caller/main.go:10 hello world!
+[DEBUG] 2022-05-07 23:57:27 /Users/harder/Desktop/Git-Repo/github.com/zbh255/bilog/example/basic/caller/main.go:11 hello world!
+```
+
+### No-Buffer
+
+`bilog`默认使用双重缓冲区来缓冲需要打印的`bytes`，您可以像上面的例子那样使用`Flush`强制刷新`Buffer`，也可以禁用缓冲，如下所示。
+
+```go
+func main() {
+	logger := bilog.NewLogger(os.Stdout,bilog.PANIC,bilog.WithDefault(),
+		bilog.WithLowBuffer(0),bilog.WithTopBuffer(0))
+	logger.Trace("hello world!")
+	logger.Info("hello world!")
+}
+```
+
+`OutPut`
+
+```shell
+[TRACE] 2022-05-08 00:35:34  hello world!
+[INFO] 2022-05-08 00:35:34  hello world!
+```
+
+> 事实上，您可以禁用缓冲也可以自行调节缓冲区的大小，使用跟如上示例一样的`Api`
+
+## Benchmark
 
 Cpu: i7-8705G 4C/8T 的测试结果，测试用例在`log_test.go`
 
