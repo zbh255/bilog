@@ -18,8 +18,8 @@ jobs:
       uses: al-cheb/configure-pagefile-action@v1.2
       if: matrix.os == 'windows-latest'
       with:
-        minimum-size: 13GB 
-        maximum-size: 13GB
+        minimum-size: 16GB
+        maximum-size: 16GB
         disk-root: "D:"
     - name: Install Go
       uses: actions/setup-go@v2
@@ -28,4 +28,4 @@ jobs:
     - name: CheckOut Code
       uses: actions/checkout@v2
     - name: Test
-      run: go test -v .
+      run: go test -race -v .
