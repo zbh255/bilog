@@ -147,7 +147,7 @@ func TestFactoryConcurrentCreate(t *testing.T) {
 	factory := NewTimeFactory()
 	factory.Start()
 	timeBuf := string(factory.Get())
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 3; i++ {
 		time.Sleep(time.Second)
 		newTimeBuf := string(factory.Get())
 		assert.NotEqual(timeBuf,newTimeBuf)
