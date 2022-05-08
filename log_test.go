@@ -112,13 +112,14 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 
 func TestSync(t *testing.T) {
 	logger := NewLogger(&TestWriter{}, PANIC)
+	testN := 1000
 	// goroutine等待的最长时间
 	var times int64
 	// 保护等待时间的互斥锁
 	var mu sync.Mutex
 	var wg sync.WaitGroup
-	wg.Add(1000000)
-	for i := 0; i < 1000000; i++ {
+	wg.Add(testN)
+	for i := 0; i < testN; i++ {
 		go func() {
 			defer wg.Done()
 			unixSt := time.Now().UnixNano()

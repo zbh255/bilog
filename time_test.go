@@ -1,6 +1,7 @@
 package bilog
 
 import (
+	ass "github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -95,84 +96,84 @@ func stackCreate() [32]byte {
 }
 
 // 测试生成的时间序列是否连续
-//func TestTimeFactory(t *testing.T) {
-//	parse := "2006-01-02 15:04:05"
-//	factory := &TimeFactory{}
-//	factory.Start()
-//	buf := make([]string, 100)
-//	for k := range buf {
-//		time.Sleep(time.Millisecond * 10)
-//		tmp := factory.Get()
-//		buf[k] = string(tmp)[:len(tmp)-1]
-//	}
-//	// 测试时间的误差
-//	top, err := time.Parse(parse, buf[0])
-//	if err != nil {
-//		t.Error(err)
-//		return
-//	}
-//	var offSet int64
-//	for _, v := range buf {
-//		tmp, err := time.Parse(parse, v)
-//		if err != nil {
-//			t.Error(err)
-//		}
-//		offSet = tmp.Unix() - top.Unix()
-//	}
-//
-//	if offSet > 10 {
-//		t.Error("time offSet max")
-//	}
-//}
-//
-//// 比对生成的秒级时间
-//func TestFactoryCreate(t *testing.T) {
-//	factory := NewTimeFactory()
-//	factory.appendBuf()
-//	// 比对时间戳
-//	now := time.Now()
-//	assert := ass.New(t)
-//	assert.Equal(now.Unix(),factory.TimeStamp()/int64(time.Second))
-//	// 比对序列化时间
-//	assert.Equal(factory.Get(),fastConvertAllToSlice(now.Year(), int(now.Month()),
-//		now.Day(),now.Hour(),
-//		now.Minute(),now.Second(),
-//	))
-//}
-//
-//// panic日志的测试
-//func TestFactoryConcurrentCreate(t *testing.T) {
-//	assert := ass.New(t)
-//	factory := NewTimeFactory()
-//	factory.Start()
-//	timeBuf := string(factory.Get())
-//	for i := 0; i < 3; i++ {
-//		time.Sleep(time.Second)
-//		newTimeBuf := string(factory.Get())
-//		assert.NotEqual(timeBuf,newTimeBuf)
-//	}
-//}
-//
-//func TestFactoryTimeStamp(t *testing.T) {
-//	factory := NewTimeFactory()
-//	factory.Start()
-//	// 间隔0.01ms收集factory的bool信息
-//	boolSet := make(map[bool]int, 10)
-//	var oldTimeStamp = time.Now().UnixNano()
-//	for {
-//		time.Sleep(time.Millisecond * 5)
-//		timeStamp := factory.TimeStamp()
-//		if timeStamp-oldTimeStamp > int64(time.Millisecond*10) {
-//			boolSet[true]++
-//		} else {
-//			boolSet[false]++
-//		}
-//		oldTimeStamp = timeStamp
-//		// 收集1024次
-//		if boolSet[true]+boolSet[false] == 1024 {
-//			break
-//		}
-//	}
-//	assert := ass.New(t)
-//	assert.NotEqual(boolSet[false],0)
-//}
+func TestTimeFactory(t *testing.T) {
+	parse := "2006-01-02 15:04:05"
+	factory := &TimeFactory{}
+	factory.Start()
+	buf := make([]string, 100)
+	for k := range buf {
+		time.Sleep(time.Millisecond * 10)
+		tmp := factory.Get()
+		buf[k] = string(tmp)[:len(tmp)-1]
+	}
+	// 测试时间的误差
+	top, err := time.Parse(parse, buf[0])
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var offSet int64
+	for _, v := range buf {
+		tmp, err := time.Parse(parse, v)
+		if err != nil {
+			t.Error(err)
+		}
+		offSet = tmp.Unix() - top.Unix()
+	}
+
+	if offSet > 10 {
+		t.Error("time offSet max")
+	}
+}
+
+// 比对生成的秒级时间
+func TestFactoryCreate(t *testing.T) {
+	factory := NewTimeFactory()
+	factory.appendBuf()
+	// 比对时间戳
+	now := time.Now()
+	assert := ass.New(t)
+	assert.Equal(now.Unix(),factory.TimeStamp()/int64(time.Second))
+	// 比对序列化时间
+	assert.Equal(factory.Get(),fastConvertAllToSlice(now.Year(), int(now.Month()),
+		now.Day(),now.Hour(),
+		now.Minute(),now.Second(),
+	))
+}
+
+// panic日志的测试
+func TestFactoryConcurrentCreate(t *testing.T) {
+	assert := ass.New(t)
+	factory := NewTimeFactory()
+	factory.Start()
+	timeBuf := string(factory.Get())
+	for i := 0; i < 3; i++ {
+		time.Sleep(time.Second)
+		newTimeBuf := string(factory.Get())
+		assert.NotEqual(timeBuf,newTimeBuf)
+	}
+}
+
+func TestFactoryTimeStamp(t *testing.T) {
+	factory := NewTimeFactory()
+	factory.Start()
+	// 间隔0.01ms收集factory的bool信息
+	boolSet := make(map[bool]int, 10)
+	var oldTimeStamp = time.Now().UnixNano()
+	for {
+		time.Sleep(time.Millisecond * 5)
+		timeStamp := factory.TimeStamp()
+		if timeStamp-oldTimeStamp > int64(time.Millisecond*10) {
+			boolSet[true]++
+		} else {
+			boolSet[false]++
+		}
+		oldTimeStamp = timeStamp
+		// 收集1024次
+		if boolSet[true]+boolSet[false] == 1024 {
+			break
+		}
+	}
+	assert := ass.New(t)
+	assert.NotEqual(boolSet[false],0)
+}
