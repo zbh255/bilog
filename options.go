@@ -36,6 +36,8 @@ func WithDefault() WithFunc {
 	}
 }
 
+// WithCaller 指定是否输出源代码文件/行号信息, offSet指定在默认输出深度上的偏移值
+// 有默认值是因为bilog内部在调用runtime.Callers时也有一定深度的封装, 这导致需要调整寻找的栈深度
 func WithCaller(offSet int) WithFunc {
 	return func(options *loggerConfig) {
 		options.st.start = true
