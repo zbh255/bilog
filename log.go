@@ -20,7 +20,7 @@ const (
 	DEFAULT_TOP_BUFFER_SIZE = 256
 	DEFAULT_LOW_BUFFER_SIZE = DEFAULT_TOP_BUFFER_SIZE * 6
 	TIME_BUF_SIZE           = 64
-	CALLER_BUF_SIZE = 64
+	CALLER_BUF_SIZE         = 64
 )
 
 // 缓存特殊的字符
@@ -124,7 +124,7 @@ func (l *SimpleLogger) resetTimeBuf() {
 func (l *SimpleLogger) writeLowBuf() {
 	// 使用No-Buffer时直接输出
 	if l.confObj.lowBufferSize == 0 {
-		writeHandle(l.write,l.topBuf)
+		writeHandle(l.write, l.topBuf)
 		return
 	}
 	if len(l.lowBuf)+len(l.topBuf) > cap(l.lowBuf) {
@@ -135,7 +135,7 @@ func (l *SimpleLogger) writeLowBuf() {
 
 // 将lowBuf中的数据全部写入到writer中并reset
 func (l *SimpleLogger) flushLowBuf() {
-	writeHandle(l.write,l.lowBuf)
+	writeHandle(l.write, l.lowBuf)
 	l.resetLowBuf()
 }
 
@@ -165,7 +165,7 @@ func (l *SimpleLogger) printCaller() {
 	// reset
 	l.callerBuf = l.callerBuf[:0]
 
-	file, line := CallerOfConcurrentCache(defaultCallDepth)
+	file, line := CallerOfConcurrentCache(l.confObj.st.skip)
 	l.callerBuf = append(l.callerBuf, file...)
 	l.callerBuf = append(l.callerBuf, cacheSplit)
 	l.callerBuf = append(l.callerBuf, strconv.Itoa(line)...)
@@ -238,7 +238,7 @@ func (l *SimpleLogger) Trace(s string) {
 	l.println(s, TRACE)
 }
 
-//TODO: 优雅地处理error
+// TODO: 优雅地处理error
 func (l *SimpleLogger) ErrorFromErr(e error) {
 	if !l.checkLevel(ERROR) {
 		return
@@ -248,7 +248,11 @@ func (l *SimpleLogger) ErrorFromErr(e error) {
 	if l.confObj.st.start {
 		l.printCaller()
 	}
-	l.println(e.Error(), ERROR)
+	if e == nil {
+		l.println("nil", ERROR)
+	} else {
+		l.println(e.Error(), ERROR)
+	}
 }
 
 func (l *SimpleLogger) ErrorFromString(s string) {
@@ -272,7 +276,11 @@ func (l *SimpleLogger) PanicFromErr(e error) {
 	if l.confObj.st.start {
 		l.printCaller()
 	}
-	l.println(e.Error(), ERROR)
+	if e == nil {
+		l.println("nil", ERROR)
+	} else {
+		l.println(e.Error(), ERROR)
+	}
 	panic(e)
 }
 

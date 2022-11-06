@@ -35,10 +35,10 @@ func TestFeature(t *testing.T) {
 	}
 	logger := NewLogger(test, PANIC)
 	// Check
-	printCheckLevel(test,logger)
+	printCheckLevel(test, logger)
 }
 
-func printCheckLevel(test *TestLevelWriter,logger *SimpleLogger) {
+func printCheckLevel(test *TestLevelWriter, logger *SimpleLogger) {
 	// recover
 	defer func() {
 		err := recover()
@@ -49,7 +49,7 @@ func printCheckLevel(test *TestLevelWriter,logger *SimpleLogger) {
 	// utils function
 	logger.Level()
 	test.SetLiveLevel(INFO)
-	logger.print("my  is info",INFO)
+	logger.print("my  is info", INFO)
 	// info log
 	test.SetLiveLevel(INFO)
 	logger.Info("hello world")
@@ -79,11 +79,11 @@ func TestNoBufferFeature(t *testing.T) {
 	test := &TestLevelWriter{
 		setLevel: PANIC,
 	}
-	logger := NewLogger(test,PANIC,WithDefault(),WithTimes(),
-		WithCaller(),WithTopBuffer(0),WithLowBuffer(0),
+	logger := NewLogger(test, PANIC, WithDefault(), WithTimes(),
+		WithCaller(0), WithTopBuffer(0), WithLowBuffer(0),
 	)
 	// check
-	printCheckLevel(test,logger)
+	printCheckLevel(test, logger)
 }
 
 type TestWriter struct {
@@ -108,7 +108,6 @@ func (t *TestSyncWriter) Write(p []byte) (n int, err error) {
 	}
 	return len(p), nil
 }
-
 
 func TestSync(t *testing.T) {
 	logger := NewLogger(&TestWriter{}, PANIC)

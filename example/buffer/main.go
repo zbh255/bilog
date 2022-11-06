@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	log := bilog.NewLogger(os.Stdout,bilog.PANIC,
-		bilog.WithTimes(),bilog.WithCaller(),bilog.WithTopBuffer(7),bilog.WithLowBuffer(2))
+	log := bilog.NewLogger(os.Stdout, bilog.PANIC,
+		bilog.WithTimes(), bilog.WithCaller(0), bilog.WithTopBuffer(7), bilog.WithLowBuffer(2))
 	log.Info("buffer1")
 	log.Info("buffer 2")
 	log.Debug("buffer 3")
