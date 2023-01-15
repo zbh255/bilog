@@ -21,6 +21,8 @@ func Caller(callDepth int) (file string, line int) {
 	_, file, line, ok := runtime.Caller(callDepth)
 	if !ok {
 		file = defaultFile
+	} else {
+		file = cutFileName(file)
 	}
 	return
 }
@@ -40,6 +42,7 @@ func CallerOfCache(skip int) (file string, line int) {
 		file = frame.File
 		line = frame.Line
 	}
+	file = cutFileName(file)
 	return
 }
 
@@ -59,5 +62,26 @@ func CallerOfConcurrentCache(skip int) (file string, line int) {
 		file = frame.File
 		line = frame.Line
 	}
+	file = cutFileName(file)
 	return
+}
+
+func cutFileName(file string) string {
+	switch file {
+	case "", defaultFile:
+		return defaultFile
+	}
+	var split int
+	var match int
+	for i := len(file) - 1; i >= 0; i-- {
+		if match == 2 {
+			split = i + 2
+			break
+		}
+		switch file[i] {
+		case '/', '\\':
+			match++
+		}
+	}
+	return file[split:]
 }

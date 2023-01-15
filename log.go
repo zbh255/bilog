@@ -2,11 +2,9 @@ package bilog
 
 import (
 	"io"
-	"reflect"
 	"strconv"
 	"sync"
 	"time"
-	"unsafe"
 )
 
 // 测试版本
@@ -115,9 +113,7 @@ func (l *SimpleLogger) fastConvert() {
 
 // 重置用于保存时间的缓冲区
 func (l *SimpleLogger) resetTimeBuf() {
-	h := (*reflect.SliceHeader)(unsafe.Pointer(&l.timeBuf))
-	h.Len = 0
-	l.timeBuf = *(*[]byte)(unsafe.Pointer(h))
+	l.timeBuf = l.timeBuf[:0]
 }
 
 // 写入到低层缓冲器，该函数会有一些检查
@@ -238,7 +234,6 @@ func (l *SimpleLogger) Trace(s string) {
 	l.println(s, TRACE)
 }
 
-// TODO: 优雅地处理error
 func (l *SimpleLogger) ErrorFromErr(e error) {
 	if !l.checkLevel(ERROR) {
 		return
