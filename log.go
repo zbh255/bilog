@@ -75,7 +75,7 @@ func NewLogger(write io.Writer, l level, options ...options) *SimpleLogger {
 		level: l,
 		write: write,
 		levelCache: []string{
-			"[INFO] ", "[DEBUG] ", "[TRACE] ", "[ERROR] ",
+			"[INFO]  ", "[DEBUG] ", "[TRACE] ", "[ERROR] ",
 			"[PANIC] ",
 		},
 		confObj:   &cf,
@@ -272,9 +272,9 @@ func (l *SimpleLogger) PanicFromErr(e error) {
 		l.printCaller()
 	}
 	if e == nil {
-		l.println("nil", ERROR)
+		l.println("nil", PANIC)
 	} else {
-		l.println(e.Error(), ERROR)
+		l.println(e.Error(), PANIC)
 	}
 }
 
@@ -287,7 +287,7 @@ func (l *SimpleLogger) PanicFromString(s string) {
 	if l.confObj.st.start {
 		l.printCaller()
 	}
-	l.println(s, ERROR)
+	l.println(s, PANIC)
 }
 
 func (l *SimpleLogger) Flush() {
