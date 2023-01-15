@@ -42,7 +42,7 @@ func printCheckLevel(test *TestLevelWriter, logger *SimpleLogger) {
 	// recover
 	defer func() {
 		err := recover()
-		if err == nil {
+		if err != nil {
 			panic("print panic but error == nil")
 		}
 	}()
