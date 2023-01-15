@@ -281,7 +281,6 @@ func (l *SimpleLogger) PanicFromErr(e error) {
 	} else {
 		l.println(e.Error(), ERROR)
 	}
-	panic(e)
 }
 
 func (l *SimpleLogger) PanicFromString(s string) {
@@ -294,7 +293,6 @@ func (l *SimpleLogger) PanicFromString(s string) {
 		l.printCaller()
 	}
 	l.println(s, ERROR)
-	panic(s)
 }
 
 func (l *SimpleLogger) Flush() {
